@@ -1,0 +1,33 @@
+pipeline {
+
+    agent any
+
+    stages {
+
+        stage('Frontend') {
+
+            when {
+                changeset "frontend/**"
+            }
+
+            steps {
+                checkout scm
+
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'username',
+                        passwordVariable: 'password'
+                    )
+                ]) {
+
+                    sh 'docker login -u "$username" -p "$password"'
+
+                    sh 'docker build -t jihed23/devopslab:frontend ./frontend'
+
+                    sh 'docker push jihed23/devopslab:frontend'
+                }
+            }
+        }
+    }
+}
