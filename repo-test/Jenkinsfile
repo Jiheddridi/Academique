@@ -1,0 +1,32 @@
+
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Backend') {
+
+            when {
+                changeset 'backend/**'
+            }
+
+            steps {
+
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'username',
+                        passwordVariable: 'password'
+                    )
+                ]) {
+
+                    sh 'docker login -u "$username" -p "$password"'
+
+                    sh 'docker build -t jihed23/devopslab:backendImage ./backend'
+
+                    sh 'docker push jihed23/devopslab:backendImage'
+                }
+            }
+        }
+    }
+}
